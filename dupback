@@ -10,9 +10,9 @@
 #!/bin/bash
 
 # Variables
-BACKUP_TYPE=""  # specify backup type, for duplicity incremental is assumed so empty string used 
+BACKUP_TYPE=""
 DUPLICITY="/usr/bin/duplicity"
-LOGTAG="${0#./}"
+LOGTAG="dupback[$$]"
 maxfull=1
 excludes=""
 
@@ -20,19 +20,21 @@ excludes=""
 log() {
   /usr/bin/logger -t $LOGTAG "$1"
   echo "[ $(date +%F\ %T) ] $LOGTAG: $1" 
-
 }
 
 
 # load configuration file
 CONFIG=~/.config/dupback.conf
-echo $CONFIG
 if [ ! -f $CONFIG ]; then
   log "no configuration file found at $CONFIG"
   exit 1
 else
-  log "configuration file found."
-  source "$CONFIG"
+  log "configuration file found"
+  . "$CONFIG"
+  if [ $? -gt 0 ]; then
+    log "ERROR - cannot load configuration file"
+    exit 1
+  fi
 fi
 
 
@@ -45,12 +47,16 @@ else
 fi
 
 # Parse the command line
-echo "Arguments: $@"
 for arg in "$@"; do
   case $arg in
+    -i)
+      BACKUP_TYPE="incremental"
+      log "INCREMENTAL backup type is selected"
+      shift
+      ;;
     -f)
-      BACKUP_TYPE="full"  # set to full backup. 
-      log "FULL backup type is selected."
+      BACKUP_TYPE="full" 
+      log "FULL backup type is selected"
       shift
       ;;
     *)
@@ -61,10 +67,11 @@ for arg in "$@"; do
   esac
 done
 
-
-if [ "$BACKUP_TYPE" != "full" ]; then
-  log "INCREMENTAL backup type is selected"
+if [ -z $BACKUP_TYPE ]; then
+  log "ERROR - No backup type was selected"
+  exit 1
 fi
+
 
 # export the PASSPHRASE which is used by duplicity to encrypt the backup
 export passphrase
