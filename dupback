@@ -76,7 +76,7 @@ fi
 # export the PASSPHRASE which is used by duplicity to encrypt the backup
 export passphrase
 
-log "beginning backup ${source}"
+log "beginning backup ${source} to ${target}"
 # Execute the backup and encrypt with the GNUPG key
 $DUPLICITY $BACKUP_TYPE --encrypt-key ${keyid} ${excludes} ${source} ${target} 
 EXITVALUE=$?
@@ -86,10 +86,12 @@ if [ $EXITVALUE != 0 -a $EXITVALUE != 23 ]; then
     exit $EXITVALUE
 fi
 
-# purge full backups to the defined maxfull  
-log "purge full backup to $maxfull"
-duplicity remove-all-but-n-full ${maxfull} --force ${target} 
-EXITVALUE=$?
+# purge full backups to the defined maxfull, only purge if executing a full backup
+if [ $BACKUP_TYPE == "full" ]; then
+  log "purge full backups to retain only $maxfull"
+  duplicity remove-all-but-n-full ${maxfull} --force ${target} 
+  EXITVALUE=$?
+fi
 
 if [ $EXITVALUE != 0 -a $EXITVALUE != 23 ]; then
     log "ERROR - exited abnormally with remove-all-but-n-full failed [$EXITVALUE]"
