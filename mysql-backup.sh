@@ -22,7 +22,7 @@ PURGE_DAYS=5
 
 log() {
 
-  local tag="mysql-backup"
+  local tag="mysql-backup[$$]"
   echo "[`date +%F-%T`] $(hostname -s) ${tag}: ${1}"
   logger -t ${tag} "${1}"
 
