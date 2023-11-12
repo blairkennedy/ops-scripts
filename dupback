@@ -16,6 +16,7 @@ LOGTAG="dupback[$$]"
 maxfull=1
 excludes=""
 
+
 # define functions
 log() {
   /usr/bin/logger -t $LOGTAG "$1"
@@ -24,13 +25,14 @@ log() {
 
 
 # load configuration file
-CONFIG=~/.config/dupback.conf
+CONFIG=$HOME/.config/dupback.conf
 if [ ! -f $CONFIG ]; then
   log "no configuration file found at $CONFIG"
   exit 1
 else
-  log "configuration file found"
-  . "$CONFIG"
+  log "configuration file found at $CONFIG"
+  log "executing $CONFIG"
+  . $CONFIG
   if [ $? -gt 0 ]; then
     log "ERROR - cannot load configuration file"
     exit 1
@@ -74,7 +76,8 @@ fi
 
 
 # export the PASSPHRASE which is used by duplicity to encrypt the backup
-export passphrase
+PASSPHRASE="$passphrase"
+export PASSPHRASE 
 
 log "beginning backup ${source} to ${target}"
 # Execute the backup and encrypt with the GNUPG key
