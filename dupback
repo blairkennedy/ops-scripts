@@ -90,10 +90,11 @@ if [ $EXITVALUE != 0 -a $EXITVALUE != 23 ]; then
 fi
 
 # purge full backups to the defined maxfull, only purge if executing a full backup
-if [ $BACKUP_TYPE == "full" ]; then
+if [ $BACKUP_TYPE = "full" ]; then
   log "purge full backups to retain only $maxfull"
   duplicity remove-all-but-n-full ${maxfull} --force ${target} 
   EXITVALUE=$?
+  log "purge full backups to retain only $maxfull completes with exitvalue [${EXITVALUE}]."
 fi
 
 if [ $EXITVALUE != 0 -a $EXITVALUE != 23 ]; then
