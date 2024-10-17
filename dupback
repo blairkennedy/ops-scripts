@@ -5,6 +5,10 @@
 ## Author: Blair Kennedy
 ## Date: 7/9/2022
 ##
+## Options:
+##    -f Full backup
+##    -i Incremental backup
+##    -v Verify backup against source files (not implemented yet)
 ##
 ############################################
 #!/bin/bash
@@ -60,6 +64,12 @@ for arg in "$@"; do
       BACKUP_TYPE="full" 
       log "FULL backup type is selected"
       shift
+      ;;
+    -v)
+      BACKUP_TYPE="verify"
+      log "VERIFY was selected. Not implemented yet so exiting."
+      shift
+      exit 99
       ;;
     *)
       log "ERROR - Unknown option $arg."
